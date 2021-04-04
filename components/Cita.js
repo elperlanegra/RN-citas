@@ -3,7 +3,7 @@ import {Text, StyleSheet, View, TouchableHighlight} from 'react-native';
 
 const Cita = ({item, eliminarPaciente}) => {
   const dialogoEliminar = id => {
-   // console.log('eliminando...', id);
+    console.log('eliminando....', id);
     eliminarPaciente(id);
   };
 
@@ -13,14 +13,12 @@ const Cita = ({item, eliminarPaciente}) => {
         <Text style={styles.label}>Paciente: </Text>
         <Text style={styles.texto}>{item.paciente}</Text>
       </View>
-
       <View>
         <Text style={styles.label}>Propietario: </Text>
         <Text style={styles.texto}>{item.propietario}</Text>
       </View>
-
       <View>
-        <Text style={styles.label}>Sintomas: </Text>
+        <Text style={styles.label}>Síntomas: </Text>
         <Text style={styles.texto}>{item.sintomas}</Text>
       </View>
 
@@ -28,7 +26,7 @@ const Cita = ({item, eliminarPaciente}) => {
         <TouchableHighlight
           onPress={() => dialogoEliminar(item.id)}
           style={styles.btnEliminar}>
-          <Text style={styles.textoElimnar}>Eliminar &times;</Text>
+          <Text style={styles.textoEliminar}> Eliminar &times; </Text>
         </TouchableHighlight>
       </View>
     </View>
@@ -37,8 +35,8 @@ const Cita = ({item, eliminarPaciente}) => {
 
 const styles = StyleSheet.create({
   cita: {
-    backgroundColor: '#fff',
-    borderColor: '#e1e1e1',
+    backgroundColor: '#FFF',
+    borderBottomColor: '#e1e1e1',
     borderStyle: 'solid',
     borderBottomWidth: 1,
     paddingVertical: 20,
@@ -52,15 +50,13 @@ const styles = StyleSheet.create({
   texto: {
     fontSize: 18,
   },
-
   btnEliminar: {
     padding: 10,
     backgroundColor: 'red',
     marginVertical: 10,
   },
-
-  textoElimnar: {
-    color: '#fff',
+  textoEliminar: {
+    color: '#FFF',
     fontWeight: 'bold',
     textAlign: 'center',
   },

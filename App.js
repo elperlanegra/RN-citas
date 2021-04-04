@@ -1,40 +1,111 @@
-import React, {useState} from 'react';
-import {Text, StyleSheet, View, FlatList} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  Text,
+  StyleSheet,
+  View,
+  FlatList,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Platform,
+} from 'react-native';
 import Cita from './components/Cita';
 import Formulario from './components/Formulario';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const App = () => {
   // definir el state de citas
-  const [citas, setCitas] = useState([
-    {id: '1', paciente: 'Hook', propietario: 'Manuel', sintomas: 'No come'},
-    {id: '2', paciente: 'Redux', propietario: 'Pedro', sintomas: 'No come'},
-    {id: '3', paciente: 'Native', propietario: 'Carlos', sintomas: 'No come'},
-  ]);
+  const [citas, setCitas] = useState([]);
+  const [mostrarform, guardarMostrarForm] = useState(false);
 
-  // Eliminar citas del state
+  useEffect(() => {
+    const obtenerCitasStorage = async () => {
+      try {
+        const citasStorage = await AsyncStorage.getItem('citas');
+        if (citasStorage) {
+          setCitas(JSON.parse(citasStorage));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    obtenerCitasStorage();
+  }, []);
 
+  // Elimina los pacientes del state
   const eliminarPaciente = id => {
-    setCitas(citasActuales => {
-      return citasActuales.filter(cita => cita.id !== id);
-    });
+    const citasFiltradas = citas.filter(cita => cita.id !== id);
+    setCitas(citasFiltradas);
+    guardarCitasStorage(JSON.stringify(citasFiltradas));
+  };
+
+  // Muestra u oculta el Formulario
+  const mostrarFormulario = () => {
+    guardarMostrarForm(!mostrarform);
+  };
+
+  // Ocultar el teclado
+  const cerrarTeclado = () => {
+    Keyboard.dismiss();
+  };
+
+  // Almacenar las citas en storage
+  const guardarCitasStorage = async citasJSON => {
+    try {
+      await AsyncStorage.setItem('citas', citasJSON);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
-    <View style={styles.contenedor}>
-      <Text style={styles.titulo}>Administrador de citas</Text>
+    <TouchableWithoutFeedback onPress={() => cerrarTeclado()}>
+      <View style={styles.contenedor}>
+        <Text style={styles.titulo}>Administrador de Citas</Text>
 
-      <Formulario /> 
+        <View>
+          <TouchableHighlight
+            onPress={() => mostrarFormulario()}
+            style={styles.btnMostrarForm}>
+            <Text style={styles.textoMostrarForm}>
+              {' '}
+              {mostrarform ? 'Cancelar Crear Cita' : 'Crear Nueva Cita'}{' '}
+            </Text>
+          </TouchableHighlight>
+        </View>
 
-      <Text style={styles.titulo}>{citas.length > 0 ? 'Administra tus citas' : 'No hay citas'}</Text>
-
-      <FlatList
-        data={citas}
-        renderItem={({item}) => (
-          <Cita item={item} eliminarPaciente={eliminarPaciente} />
-        )}
-        keyExtractor={cita => cita.id}
-      />
-    </View>
+        <View style={styles.contenido}>
+          {mostrarform ? (
+            <>
+              <Text style={styles.titulo}>Crear Nueva Cita</Text>
+              <Formulario
+                citas={citas}
+                setCitas={setCitas}
+                guardarMostrarForm={guardarMostrarForm}
+                guardarCitasStorage={guardarCitasStorage}
+              />
+            </>
+          ) : (
+            <>
+              <Text style={styles.titulo}>
+                {' '}
+                {citas.length > 0
+                  ? 'Administra tus citas'
+                  : 'No hay citas, agrega una'}{' '}
+              </Text>
+              <FlatList
+                style={styles.listado}
+                data={citas}
+                renderItem={({item}) => (
+                  <Cita item={item} eliminarPaciente={eliminarPaciente} />
+                )}
+                keyExtractor={cita => cita.id}
+              />
+            </>
+          )}
+        </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -43,12 +114,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#AA076B',
     flex: 1,
   },
-
   titulo: {
-    color: '#fff',
-    marginTop: 20,
+    color: '#FFF',
+    marginTop: Platform.OS === 'ios' ? 40 : 20,
     marginBottom: 20,
     fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  contenido: {
+    flex: 1,
+    marginHorizontal: '2.5%',
+  },
+  listado: {
+    flex: 1,
+  },
+  btnMostrarForm: {
+    padding: 10,
+    backgroundColor: '#7d024e',
+    marginVertical: 10,
+  },
+  textoMostrarForm: {
+    color: '#FFF',
     fontWeight: 'bold',
     textAlign: 'center',
   },
